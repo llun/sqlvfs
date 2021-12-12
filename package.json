@@ -1,0 +1,33 @@
+{
+  "name": "sqlvfs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "db": "swc-node index",
+    "load": "LOAD_FEEDS=true INPUT_OUTPUTDIRECTORY='contents' INPUT_OPMLFILE='feeds.opml' swc-node index"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@actions/core": "^1.6.0",
+    "@swc-node/core": "^1.8.0",
+    "@swc-node/register": "^1.4.0",
+    "node-fetch": "2",
+    "sanitize-html": "^2.6.1",
+    "sql.js-httpvfs": "^0.8.11",
+    "xml2js": "^0.4.23"
+  },
+  "devDependencies": {
+    "@types/node-fetch": "^3.0.3",
+    "@types/sanitize-html": "^2.6.0",
+    "@types/sql.js": "^1.4.3",
+    "@types/sqlite3": "^3.1.7",
+    "@types/xml2js": "^0.4.9",
+    "ava": "^3.15.0",
+    "regenerator-runtime": "^0.13.9",
+    "sqlite3": "^5.0.2",
+    "swc-node": "^1.0.0",
+    "typescript": "^4.5.3"
+  }
+}

@@ -1,0 +1,4 @@
+.DS_Store
+contents
+data.sqlite3
+node_modules
