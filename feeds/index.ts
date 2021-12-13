@@ -1,7 +1,7 @@
 import crypto from 'crypto'
 import fs from 'fs'
 import path from 'path'
-import fetch from 'node-fetch'
+import axios from 'axios'
 import { getInput, setFailed } from '@actions/core'
 import { parseXML, parseAtom, parseRss, Site } from './parsers'
 
@@ -10,12 +10,10 @@ export async function loadFeed(
   url: string
 ): Promise<Site | null> {
   try {
-    const data = await fetch(url, {
-      headers: {
-        'User-Agent': 'llun/feeds'
-      }
-    }).then((response) => response.text())
-    const xml = await parseXML(data)
+    const response = await axios.get(url, {
+      headers: { 'User-Agent': 'llun/feeds' }
+    })
+    const xml = await parseXML(response.data)
     if (xml.rss) return parseRss(title, xml)
     if (xml.feed) return parseAtom(title, xml)
     return null
