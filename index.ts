@@ -27,8 +27,8 @@ async function main() {
   if (process.env.LOAD_FEEDS) {
     await writeFeedsContent()
   }
-  fs.rmSync('./data.sqlite3')
-  const database = new Database('./data.sqlite3')
+  fs.rmSync('./public/data.sqlite3', { force: true, recursive: true })
+  const database = new Database('./public/data.sqlite3')
   database.serialize(async () => {
     database.run('create table Categories (name TEXT PRIMARY KEY)')
     database.run(
