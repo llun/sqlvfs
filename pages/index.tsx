@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { createDbWorker, WorkerHttpvfs } from 'sql.js-httpvfs'
 import { SplitFileConfig } from 'sql.js-httpvfs/dist/sqlite.worker'
+import { getCategories, getSites, getWorker, Site } from '../lib/database'
 
 export async function getStaticProps(context) {
   const config = {
@@ -19,25 +19,46 @@ export async function getStaticProps(context) {
 interface Props {
   config: SplitFileConfig
 }
-
+interface CategoryMenu {
+  name: string
+  selected: boolean
+}
 const Index = ({ config }: Props) => {
   const [status, setStatus] = useState<'loading' | 'loaded'>('loading')
-  const [categories, setCategories] = useState([])
+  const [categories, setCategories] = useState<CategoryMenu[]>([])
+  const [sites, setSites] = useState<Site[]>([])
 
   useEffect(() => {
     if (status === 'loaded') return
     ;(async () => {
-      const worker = await createDbWorker(
-        [config],
-        '/sqlite.worker.js',
-        '/sql-wasm.wasm'
-      )
-      const [result] = await worker.db.exec(`select name from Categories`)
-      const { values } = result
-      setCategories(values.flat())
+      const worker = await getWorker(config)
+      const categories = await getCategories(worker)
+      setCategories(categories.map((name) => ({ name, selected: false })))
       setStatus('loaded')
     })()
   }, [status])
+
+  async function selectCategory(selected: CategoryMenu) {
+    if (selected.selected) {
+      setCategories(
+        categories.map((category) => ({
+          ...category,
+          selected: false
+        }))
+      )
+      setSites([])
+      return
+    }
+    const worker = await getWorker(config)
+    const sites = await getSites(worker, selected.name)
+    setCategories(
+      categories.map((category) => ({
+        ...category,
+        selected: category.name === selected.name
+      }))
+    )
+    setSites(sites)
+  }
 
   return (
     <div>
@@ -45,7 +66,23 @@ const Index = ({ config }: Props) => {
       {status === 'loading' && <span>Loading</span>}
       <ul>
         {categories.map((category) => {
-          return <li key={category}>{category}</li>
+          return (
+            <li
+              key={category.name}
+              style={{ cursor: 'pointer' }}
+              onClick={() => selectCategory(category)}
+            >
+              {!category.selected && category.name}
+              {category.selected && <strong>{category.name}</strong>}
+              {category.selected && (
+                <div>
+                  {sites.map((site) => (
+                    <p key={site.key}>{site.title}</p>
+                  ))}
+                </div>
+              )}
+            </li>
+          )
         })}
       </ul>
     </div>
